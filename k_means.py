@@ -81,30 +81,7 @@ print("Cluster Summary (Mean values for Annual_Spending and Order_Count):")
 print(cluster_summary)
 
 # Visualize the clusters
-import plotly.express as px
-fig = px.scatter(
-    df,
-    x="Annual_Spending",
-    y="Order_Count",
-    color=df["Cluster"].astype(str),
-    hover_data=["Customer_ID"],
-    title="Customer Segmentation",
-    color_discrete_sequence=px.colors.qualitative.Set2
-)
 
-fig.add_scatter(
-    x=centers[:,0],
-    y=centers[:,1],
-    mode="markers",
-    marker=dict(
-        symbol="x",
-        size=18,
-        color="black"
-    ),
-    name="Centroids"
-)
-
-st.plotly_chart(fig, use_container_width=True)
 
 # Calculate the Silhouette Score
 silhouette_avg = silhouette_score(X_scaled, df['Cluster'])
