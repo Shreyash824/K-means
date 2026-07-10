@@ -27,12 +27,6 @@ st.markdown(
 # ----------------------------------------------------
 st.sidebar.header("⚙ Model Configuration")
 
-clusters = st.sidebar.slider(
-    "Number of Clusters",
-    min_value=2,
-    max_value=10,
-    value=3
-)
 
 uploaded_file = st.sidebar.file_uploader(
     "Upload Dataset",
