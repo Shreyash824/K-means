@@ -9,9 +9,18 @@ Original file is located at
 
 import pandas as pd
 
-from google.colab import files
+uploaded_file = st.file_uploader(
+    "Upload Customer Dataset",
+    type=["xlsx", "csv"]
+)
 
-uploaded = files.upload()
+if uploaded_file is not None:
+
+    if uploaded_file.name.endswith(".csv"):
+        data = pd.read_csv(uploaded_file)
+
+    else:
+        data = pd.read_excel(uploaded_file)
 
 pd.read_excel("/content/customer_spending.xlsx")
 
