@@ -11,7 +11,7 @@ Original file is located at
 
 import streamlit as st
 import pandas as pd
-import matplotlib.pyplot as plt
+import plotly.express as px
 
 st.title("K-Means Clustering From Scratch")
 
@@ -26,4 +26,135 @@ if uploaded_file:
     # Run your KMeans implementation here
 
     st.success("Clustering Completed")
+    #
+fig = px.scatter(
+    df,
+    x="Annual_Spending",
+    y="Order_Count",
+    color=df["Cluster"].astype(str),
+    hover_data=["Customer_ID"],
+    title="Customer Segmentation",
+    color_discrete_sequence=px.colors.qualitative.Set2
+)
+
+fig.add_scatter(
+    x=centers[:,0],
+    y=centers[:,1],
+    mode="markers",
+    marker=dict(
+        symbol="x",
+        size=18,
+        color="black"
+    ),
+    name="Centroids"
+)
+
+st.plotly_chart(fig, use_container_width=True)
+#
+cluster_counts = (
+    df["Cluster"]
+    .value_counts()
+    .sort_index()
+    .reset_index()
+)
+
+cluster_counts.columns = ["Cluster","Customers"]
+
+fig = px.bar(
+    cluster_counts,
+    x="Cluster",
+    y="Customers",
+    color="Cluster",
+    text="Customers",
+    title="Customers per Cluster"
+)
+#
+summary = (
+    df.groupby("Cluster")
+      .agg(
+          Customers=("Customer_ID","count"),
+          Avg_Spending=("Annual_Spending","mean"),
+          Avg_Orders=("Order_Count","mean")
+      )
+      .reset_index()
+)
+
+st.plotly_chart(fig, use_container_width=True)
+#
+col1, col2, col3 = st.columns(3)
+
+col1.metric(
+    "Customers",
+    len(df)
+)
+
+col2.metric(
+    "Average Spending",
+    f"₹{df['Annual_Spending'].mean():,.0f}"
+)
+
+col3.metric(
+    "Average Orders",
+    f"{df['Order_Count'].mean():.0f}"
+)
+#
+st.header("Business Insights")
+
+overall_spending = df["Annual_Spending"].mean()
+overall_orders = df["Order_Count"].mean()
+
+for _, row in summary.iterrows():
+
+    spending = row["Avg_Spending"]
+    orders = row["Avg_Orders"]
+
+    if spending > overall_spending and orders > overall_orders:
+
+        label = "💎 High-Value Loyal Customers"
+
+        recommendation = """
+- Reward with premium membership
+- Offer exclusive discounts
+- Recommend premium products
+"""
+
+    elif spending > overall_spending and orders <= overall_orders:
+
+        label = "💰 High Spenders"
+
+        recommendation = """
+- Encourage repeat purchases
+- Offer loyalty rewards
+- Send personalized promotions
+"""
+
+    elif spending <= overall_spending and orders > overall_orders:
+
+        label = "🛒 Frequent Budget Buyers"
+
+        recommendation = """
+- Bundle products
+- Recommend complementary items
+- Increase average order value
+"""
+
+    else:
+
+        label = "🌱 Low-Value Customers"
+
+        recommendation = """
+- Send welcome coupons
+- Re-engagement campaigns
+- Targeted marketing
+"""
+
+    st.success(f"Cluster {int(row['Cluster'])} : {label}")
+
+    st.write(f"Customers : {int(row['Customers'])}")
+
+    st.write(f"Average Spending : ₹{row['Avg_Spending']:.2f}")
+
+    st.write(f"Average Orders : {row['Avg_Orders']:.2f}")
+
+    st.info(recommendation)
 
